@@ -2,41 +2,12 @@
 
 Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
 
-## Setup
+## TODO
 
-Make sure to install the dependencies:
+Use this color [Palette](https://colorhunt.co/palette/2c3333395b64a5c9cae7f6f2)
 
-```bash
-# yarn
-yarn install
-
-# npm
-npm install
-
-# pnpm
-pnpm install
-```
-
-## Development Server
-
-Start the development server on http://localhost:3000
-
-```bash
-npm run dev
-```
-
-## Production
-
-Build the application for production:
-
-```bash
-npm run build
-```
-
-Locally preview production build:
-
-```bash
-npm run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+- [ ] Create Landing page
+- [ ] Create Login Page
+- [ ] Create Room Chat (authenticated user only)
+  - [ ] User can add music (!play) 
+  - [ ] if music added while music is playing, add music link to queue (!list)
