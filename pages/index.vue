@@ -1,5 +1,5 @@
 <template>
-  <div id="wrapper">
+  <div id="wrapper" class="flex flex-col min-h-screen">
     <header class="text-white bg-[#E7F6F2] bg-opacity-50 backdrop-blur min-h-[40px]">
       <div class="container max-w-screen-xl mx-auto flex items-center p-3">
         <div id="logo">
@@ -20,7 +20,7 @@
               Play music from one host with a lot of commands
             </h2>
             <NuxtLink
-              to="#"
+              to="/login"
               class="inline-block px-5 py-2 rounded-full bg-[#2C3333] text-white mt-5 font-semibold"
               >Login</NuxtLink
             >
@@ -29,7 +29,7 @@
       </div>
     </div>
 
-    <div id="why-gomu">
+    <div id="why-gomu" class="flex-1">
       <div
         id="why-gomu-wrapper"
         class="container mx-auto max-w-screen-xl grid grid-cols-3 gap-10 mt-10 raleway"
@@ -65,17 +65,18 @@
         </div>
       </div>
     </div>
+
+    <footer class="p-3 bg-[#2C3333]">
+      <div
+        class="container mx-auto max-w-screen-xl flex justify-between text-white raleway"
+      >
+        <span>Gomuhost 2023 &copy;</span>
+        <a href="https://github.com/gkyla/gomuhost">Github</a>
+      </div>
+    </footer>
   </div>
 </template>
 
 <script setup></script>
 
-<style scoped>
-.gomuhost-font {
-  font-family: "Sofia Sans Semi Condensed", sans-serif !important;
-}
-
-.raleway {
-  font-family: "Raleway", sans-serif !important;
-}
-</style>
+<style scoped></style>
