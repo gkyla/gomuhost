@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+    .gomuhost-font {
+        font-family: "Sofia Sans Semi Condensed", sans-serif !important;
+    }
+
+    .raleway {
+        font-family: "Raleway", sans-serif !important;
+    }
+}
