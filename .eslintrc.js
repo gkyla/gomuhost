@@ -18,6 +18,8 @@ module.exports = {
     'vue'
   ],
   rules: {
-    'vue/multi-word-component-names': 0
+    'vue/multi-word-component-names': 0,
+    'no-undef': 0,
+    'no-unused-vars': 1
   }
 }
