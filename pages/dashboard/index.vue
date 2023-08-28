@@ -2,7 +2,7 @@
 const iframeVideo = ref(null)
 const currentStatus = ref(null)
 const player = ref('')
-const youtubeVideoId = ref('')
+const userCommand = ref('')
 const logs = ref([])
 
 onMounted(() => {
@@ -13,7 +13,7 @@ onMounted(() => {
     player.value = new YT.Player(iframeVideo.value.id, {
       height: '390',
       width: '640',
-      videoId: 'ofwGXmsI6W_Y',
+      videoId: 'hbhV2Ij-Lbg',
       playerVars: {
         playsinline: 1
       },
@@ -46,7 +46,7 @@ onMounted(() => {
       author: videoData.author
     }
 
-    createLogs(createObjectData)
+    createLogState(createObjectData)
     logs.value.push({ ...createObjectData })
 
     console.log('State Changed', logs.value)
@@ -59,13 +59,20 @@ onMounted(() => {
   onYouTubeIframeAPIReady()
 })
 
-function createLogs (payload) {
+function createLogState (payload) {
   const p = document.createElement('p')
   const parsedVideoState = parseYTPlayerState(payload.playerState)
   p.innerText = `${parsedVideoState} ${payload.title}, Channel : ${payload.author}`
   currentStatus.value.appendChild(p)
 
   return p
+}
+
+function createLogCommandRunner (command) {
+  const p = document.createElement('p')
+  const user = 'Gitkyla' /* will use real user later */
+  p.innerText = `User ${user} run ${command}`
+  currentStatus.value.appendChild(p)
 }
 
 function parseYTPlayerState (playerState) {
@@ -94,8 +101,16 @@ function parseYTPlayerState (playerState) {
   return videoState
 }
 
-function loadAnotherVideo () {
-  player.value.loadVideoById(youtubeVideoId.value)
+function runCommand () {
+  const [command, id] = userCommand.value.split(' ')
+
+  switch (command) {
+    case '!play':
+      player.value.loadVideoById(id)
+      /* potentialy get the video data again to show when playing  */
+      createLogCommandRunner(command)
+      break
+  }
 }
 
 // TODO: Setting up command (!play, !skip, !pause, !stop)
@@ -104,8 +119,8 @@ function loadAnotherVideo () {
 <template>
   <div class="flex justify-center items-center flex-col">
     <div id="iframe-video" ref="iframeVideo"></div>
-    <input type="text" v-model="youtubeVideoId" class="border-4 mt-20 w-full" />
-    <button @click="loadAnotherVideo">play with another video</button>
+    <input type="text" v-model="userCommand" class="border-4 mt-20 w-full" />
+    <button @click="runCommand">send command</button>
 
     <div id="currentStatus" class="mt-10 px-2" ref="currentStatus">
       <p class="text-2xl">test</p>
