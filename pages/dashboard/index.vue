@@ -1,14 +1,12 @@
 <script setup>
+const loggerContainer = ref(null)
+const { createLogCommandRunner, createLogState } = useLogger()
 const iframeVideo = ref(null)
-const currentStatus = ref(null)
 const player = ref('')
 const userCommand = ref('')
 const logs = ref([])
 
 onMounted(() => {
-  console.log(iframeVideo.value)
-
-  /* TODO: cari tau jalanin function ketika script sudah selesai load */
   function onYouTubeIframeAPIReady () {
     player.value = new YT.Player(iframeVideo.value.id, {
       height: '390',
@@ -46,74 +44,74 @@ onMounted(() => {
       author: videoData.author
     }
 
-    createLogState(createObjectData)
+    createLogState(loggerContainer.value, createObjectData)
     logs.value.push({ ...createObjectData })
 
     console.log('State Changed', logs.value)
   }
 
-  // function stopVideo () {
-  //   player.value.stopVideo()
-  // }
-
   onYouTubeIframeAPIReady()
 })
 
-function createLogState (payload) {
-  const p = document.createElement('p')
-  const parsedVideoState = parseYTPlayerState(payload.playerState)
-  p.innerText = `${parsedVideoState} ${payload.title}, Channel : ${payload.author}`
-  currentStatus.value.appendChild(p)
-
-  return p
-}
-
-function createLogCommandRunner (command) {
-  const p = document.createElement('p')
-  const user = 'Gitkyla' /* will use real user later */
-  p.innerText = `User ${user} run ${command}`
-  currentStatus.value.appendChild(p)
-}
-
-function parseYTPlayerState (playerState) {
-  let videoState = ''
-
-  // YT.PlayerState
-  // BUFFERING : 3
-  // CUED : 5
-  // ENDED : 0
-  // PAUSED : 2
-  // PLAYING : 1
-  // UNSTARTED : -1
-
-  switch (playerState) {
-    case 1:
-      videoState = 'Now Playing ▶️ '
-      break
-    case 2:
-      videoState = 'Video Paused ⏸️ '
-      break
-    case 0:
-      videoState = 'Video Ended 🔚'
-      break
-  }
-
-  return videoState
-}
-
 function runCommand () {
-  const [command, id] = userCommand.value.split(' ')
+  const [command, userOptions] = userCommand.value.split(' ')
+  let youtubeId = ''
+  let volume = null
+  let userOptionsDecider = null
+  let selectedCommand = ''
+
+  if (userOptions) {
+    if (userOptions.includes('youtube.com')) {
+      userOptionsDecider = new URL(userOptions).searchParams.get('v')
+      youtubeId = userOptionsDecider
+    }
+
+    if (!isNaN(parseInt(userOptions))) {
+      userOptionsDecider = userOptions
+      volume = userOptionsDecider
+    } else {
+      return
+    }
+  }
 
   switch (command) {
     case '!play':
-      player.value.loadVideoById(id)
-      /* potentialy get the video data again to show when playing  */
-      createLogCommandRunner(command)
+      /* TODO: beri warning jika tidak ngasih link youtube nye */
+      player.value.loadVideoById(youtubeId)
+      selectedCommand = command
       break
+    case '!pause':
+      player.value.pauseVideo()
+      selectedCommand = command
+      break
+    case '!stop':
+      player.value.stopVideo()
+      selectedCommand = command
+      break
+    case '!resume':
+      player.value.playVideo()
+      selectedCommand = command
+      break
+    case '!mute':
+      player.value.mute()
+      selectedCommand = command
+      break
+    case '!unmute':
+      player.value.unMute()
+      selectedCommand = command
+      break
+    case '!setvolume':
+      player.value.setVolume(volume)
+      /* TODO: kasih warning lebih jelas jika lebih dari 100 tetap bakal di set ke 100 */
+      selectedCommand = `${command}, 🔊 Volume now changed to ${volume}%`
+      break
+    default:
+      console.log(command)
   }
-}
 
-// TODO: Setting up command (!play, !skip, !pause, !stop)
+  userCommand.value = ''
+  createLogCommandRunner(loggerContainer.value, selectedCommand)
+}
 </script>
 
 <template>
@@ -122,7 +120,7 @@ function runCommand () {
     <input type="text" v-model="userCommand" class="border-4 mt-20 w-full" />
     <button @click="runCommand">send command</button>
 
-    <div id="currentStatus" class="mt-10 px-2" ref="currentStatus">
+    <div id="currentStatus" class="mt-10 px-2" ref="loggerContainer">
       <p class="text-2xl">test</p>
     </div>
   </div>
