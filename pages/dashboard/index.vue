@@ -5,13 +5,14 @@ const iframeVideo = ref(null)
 const player = ref('')
 const userCommand = ref('')
 const logs = ref([])
+const userName = ref('Gitkyla')
 
 onMounted(() => {
   function onYouTubeIframeAPIReady () {
     player.value = new YT.Player(iframeVideo.value.id, {
       height: '390',
       width: '640',
-      videoId: 'hbhV2Ij-Lbg',
+      videoId: '',
       playerVars: {
         playsinline: 1
       },
@@ -69,17 +70,28 @@ function runCommand () {
     if (!isNaN(parseInt(userOptions))) {
       userOptionsDecider = userOptions
       volume = userOptionsDecider
-    } else {
-      return
     }
   }
 
   switch (command) {
-    case '!play':
-      /* TODO: beri warning jika tidak ngasih link youtube nye */
-      player.value.loadVideoById(youtubeId)
-      selectedCommand = command
+    case '!play': {
+      const videoData = player.value.getVideoData()
+
+      if (videoData.video_id && !userOptions && !youtubeId) {
+        selectedCommand = `${command},  cannot be proceed because there is still video under the queue, instead use !resume to play current video`
+        break
+      }
+      if (!videoData.video_id && !userOptions && !youtubeId) {
+        selectedCommand = `${command},  cannot be proceed because there is no link given to the chat box`
+        break
+      }
+
+      if (youtubeId) {
+        player.value.loadVideoById(youtubeId)
+        selectedCommand = command
+      }
       break
+    }
     case '!pause':
       player.value.pauseVideo()
       selectedCommand = command
@@ -118,6 +130,7 @@ function runCommand () {
   <div class="flex justify-center items-center flex-col">
     <div id="iframe-video" ref="iframeVideo"></div>
     <input type="text" v-model="userCommand" class="border-4 mt-20 w-full" />
+    <input type="text" v-model="userName" class="border-4 mt-20 w-full" />
     <button @click="runCommand">send command</button>
 
     <div id="currentStatus" class="mt-10 px-2" ref="loggerContainer">
