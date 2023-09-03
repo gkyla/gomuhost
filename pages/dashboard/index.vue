@@ -12,7 +12,7 @@ onMounted(() => {
     player.value = new YT.Player(iframeVideo.value.id, {
       height: '390',
       width: '640',
-      videoId: '',
+      videoId: 'zf2k9_Nnm7w',
       playerVars: {
         playsinline: 1
       },
@@ -103,6 +103,16 @@ function runCommand () {
       break
     }
     case '!stop': {
+      /*
+      TODO: ketika sedang play lalu !stop, command !resume ngejalanin dari awal video
+            hindarin behavior ini, lebih baik paksa user untuk menggunakan !play jika video
+            dimulai pada saat durasi awal
+
+            !stop -> !play
+            !pause -> !resume
+            durasi 0:00 -> !play
+            durasi > 0:00 -> !resume
+      */
       player.value.stopVideo()
       selectedCommand = command
       break
