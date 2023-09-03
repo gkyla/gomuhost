@@ -92,26 +92,31 @@ function runCommand () {
         break
       }
     }
-    case '!pause':
+    case '!pause': {
       player.value.pauseVideo()
       selectedCommand = command
       break
-    case '!stop':
+    }
+    case '!stop': {
       player.value.stopVideo()
       selectedCommand = command
       break
-    case '!resume':
+    }
+    case '!resume': {
       player.value.playVideo()
       selectedCommand = command
       break
-    case '!mute':
+    }
+    case '!mute': {
       player.value.mute()
       selectedCommand = command
       break
-    case '!unmute':
+    }
+    case '!unmute': {
       player.value.unMute()
       selectedCommand = command
       break
+    }
     case '!setvolume': {
       const videoData = player.value.getVideoData()
 
