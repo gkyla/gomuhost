@@ -77,20 +77,20 @@ function runCommand () {
     case '!play': {
       const videoData = player.value.getVideoData()
 
-      if (videoData.video_id && !userOptions && !youtubeId) {
-        selectedCommand = `${command},  cannot be proceed because there is still video under the queue, instead use !resume to play current video`
-        break
-      }
-      if (!videoData.video_id && !userOptions && !youtubeId) {
-        selectedCommand = `${command},  cannot be proceed because there is no link given to the chat box`
-        break
-      }
-
-      if (youtubeId) {
+      if (!youtubeId) {
+        if (videoData.video_id) {
+          /* Potentially bakal diganti msg command nya, diganti jadi nambahin queue */
+          selectedCommand = `${command},  cannot be proceed because there is still video under the queue, instead use !resume to play current video`
+          break
+        } else {
+          selectedCommand = `${command},  cannot be proceed because there is no link given to the chat box`
+          break
+        }
+      } else {
         player.value.loadVideoById(youtubeId)
         selectedCommand = command
+        break
       }
-      break
     }
     case '!pause':
       player.value.pauseVideo()
@@ -112,13 +112,28 @@ function runCommand () {
       player.value.unMute()
       selectedCommand = command
       break
-    case '!setvolume':
-      player.value.setVolume(volume)
-      /* TODO: kasih warning lebih jelas jika lebih dari 100 tetap bakal di set ke 100 */
-      selectedCommand = `${command}, 🔊 Volume now changed to ${volume}%`
+    case '!setvolume': {
+      const videoData = player.value.getVideoData()
+
+      if (!volume) {
+        selectedCommand = `${command}, no volume inputed`
+        break
+      } else {
+        if (!videoData.video_id) {
+          selectedCommand = `${command}, 🔊 cannot be proceed because of no video currently playing`
+        } else {
+          if (parseInt(volume) > 100) {
+            selectedCommand = `${command}, 🔊 Volume cant be set above 100%, forced to set 100% instead of ${volume}`
+          } else {
+            selectedCommand = `${command}, 🔊 Volume now changed to ${volume}%`
+          }
+          player.value.setVolume(volume)
+        }
+      }
       break
+    }
     default:
-      console.log(command)
+      console.error(command)
   }
 
   userCommand.value = ''
