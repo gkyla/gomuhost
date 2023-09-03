@@ -34,10 +34,10 @@ export function useLogger () {
     return p
   }
 
-  function createLogCommandRunner (loggerContainer, command) {
+  function createLogCommandRunner (loggerContainer, { command, message }) {
     const p = document.createElement('p')
     const user = 'Gitkyla' /* will use real user later */
-    p.innerText = `User ${user} run command ${command}`
+    p.innerText = `User ${user} run command ${command}, ${message}`
     loggerContainer.appendChild(p)
   }
 

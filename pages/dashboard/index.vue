@@ -60,6 +60,7 @@ function runCommand () {
   let volume = null
   let userOptionsDecider = null
   let selectedCommand = ''
+  let message = ''
 
   if (userOptions) {
     if (userOptions.includes('youtube.com')) {
@@ -80,10 +81,14 @@ function runCommand () {
       if (!youtubeId) {
         if (videoData.video_id) {
           /* Potentially bakal diganti msg command nya, diganti jadi nambahin queue */
-          selectedCommand = `${command},  cannot be proceed because there is still video under the queue, instead use !resume to play current video`
+          selectedCommand = command
+          message =
+            'Cannot proceed because there is still video in the queue; instead, use command !resume to play the current video.'
           break
         } else {
-          selectedCommand = `${command},  cannot be proceed because there is no link given to the chat box`
+          selectedCommand = command
+          message =
+            'Cannot proceed because there is no link given by the user to the chat box.'
           break
         }
       } else {
@@ -121,16 +126,21 @@ function runCommand () {
       const videoData = player.value.getVideoData()
 
       if (!volume) {
-        selectedCommand = `${command}, no volume inputed`
+        selectedCommand = command
+        message =
+          '🔊 Cannot proceed because no volume was input by the user in the chat box.'
         break
       } else {
         if (!videoData.video_id) {
-          selectedCommand = `${command}, 🔊 cannot be proceed because of no video currently playing`
+          selectedCommand = command
+          message = '🔊 Cannot be proceeded because no video is currently playing.'
         } else {
           if (parseInt(volume) > 100) {
-            selectedCommand = `${command}, 🔊 Volume cant be set above 100%, forced to set 100% instead of ${volume}`
+            selectedCommand = command
+            message = `🔊 Volume can't be set above 100%; the system now forces the video to be set to 100% instead of ${volume}`
           } else {
-            selectedCommand = `${command}, 🔊 Volume now changed to ${volume}%`
+            selectedCommand = command
+            message = `🔊 Volume has now changed to ${volume}%`
           }
           player.value.setVolume(volume)
         }
@@ -142,7 +152,10 @@ function runCommand () {
   }
 
   userCommand.value = ''
-  createLogCommandRunner(loggerContainer.value, selectedCommand)
+  createLogCommandRunner(loggerContainer.value, {
+    command: selectedCommand,
+    message
+  })
 }
 </script>
 
