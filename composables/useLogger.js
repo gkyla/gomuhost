@@ -19,6 +19,8 @@ function parseYTPlayerState (playerState) {
     case 0:
       videoState = 'Video Ended 🔚'
       break
+    default:
+      console.error(playerState)
   }
 
   return videoState
@@ -27,11 +29,13 @@ function parseYTPlayerState (playerState) {
 export function useLogger () {
   function createLogState (loggerContainer, payload) {
     const p = document.createElement('p')
-    const parsedVideoState = parseYTPlayerState(payload.playerState)
-    p.innerText = `${parsedVideoState} ${payload.title}, 🎞️ Channel  : ${payload.author}`
-    loggerContainer.appendChild(p)
+    if (payload.playerState !== -1) {
+      const parsedVideoState = parseYTPlayerState(payload.playerState)
+      p.innerText = `${parsedVideoState} ${payload.title}, 🎞️ Channel  : ${payload.author}`
+      loggerContainer.appendChild(p)
 
-    return p
+      return p
+    }
   }
 
   function createLogCommandRunner (loggerContainer, { command, message }) {
