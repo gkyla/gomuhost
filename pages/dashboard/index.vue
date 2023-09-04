@@ -1,11 +1,14 @@
 <script setup>
 const loggerContainer = ref(null)
 const { createLogCommandRunner, createLogState } = useLogger()
+// const { simplifyVideoData } = useObjectFormatter()
 const iframeVideo = ref(null)
 const player = ref('')
 const userCommand = ref('')
 const logs = ref([])
 const userName = ref('Gitkyla')
+const currentPlayingVideo = ref(null)
+const queueListVideo = ref([])
 
 onMounted(() => {
   function onYouTubeIframeAPIReady () {
@@ -25,19 +28,21 @@ onMounted(() => {
 
   // 4. The API will call this function when the video player is ready.
   function onPlayerReady (event) {
-    // console.log('event', event.target)
-    // event.target.playVideo()
+
   }
 
   function onPlayerStateChange (event) {
     // eslint-disable-next-line eqeqeq
     console.log('onPlayerStateChange', event)
-    if (event.data === 3 || event.data === 5 || event.data === -1) {
-      return /* Only continue if PLAYING (1), PAUSED (2) & ENDED (0) */
+    if (event.data === 3 || event.data === 5) {
+      return
+      /* Only continue if PLAYING (1), PAUSED (2) & ENDED (0)
+          UNSTARTED (-1)
+      */
     }
 
     const videoData = event.target.getVideoData()
-    const createObjectData = {
+    const createObjectVideoData = {
       playerState: event.data,
       video_id: videoData.video_id,
       video_quality: videoData.video_quality,
@@ -45,8 +50,47 @@ onMounted(() => {
       author: videoData.author
     }
 
-    createLogState(loggerContainer.value, createObjectData)
-    logs.value.push({ ...createObjectData })
+    if (event.data === 1 /* PLAYING */) {
+      currentPlayingVideo.value = createObjectVideoData
+      const isAlreadyInTheQueue = queueListVideo.value.find((vid) => {
+        return vid === videoData.video_id
+      })
+
+      if (!isAlreadyInTheQueue) {
+        queueListVideo.value.push(currentPlayingVideo.value.video_id)
+      }
+    }
+
+    if (event.data === 0) {
+      currentPlayingVideo.value = null
+
+      if (queueListVideo.value.length > 0) {
+        const index = queueListVideo.value.findIndex((vid) => {
+          return vid === videoData.video_id
+        })
+
+        console.log(index)
+        if (index !== -1) {
+          /* Kalo durasi udah abis hapus id nya */
+          queueListVideo.value.splice(index, 1)
+        }
+      }
+
+      /* Recheck, Setelah delete current video, check jika masih ada video di queue list
+        maka jalan kan video tersebut
+       */
+
+      if (queueListVideo.value.length > 0) {
+        const getId = queueListVideo.value[0] /* putar urutan pertama */
+        player.value.loadVideoById(getId)
+      }
+    }
+
+    createLogState(loggerContainer.value, createObjectVideoData)
+
+    /* TODO:
+        Ketika resume, logs nya jangan "Now Playing" tapi "Resuming"
+    */
 
     console.log('State Changed', logs.value)
   }
@@ -101,8 +145,14 @@ function runCommand () {
         }
       } else {
         /* !play https://ytsomething.com?v=something */
-        if (videoData.video_id) {
-          /* TODO: tambahin ke list queue */
+        if (videoData.video_id && queueListVideo.value.length > 0) {
+          /*
+            Sepertinya butuh youtube api v3 untuk dapetin info video lengkap dengan id
+          */
+          queueListVideo.value.push(youtubeId)
+          selectedCommand = command
+          message = '📃 Video successfully added to the queue'
+          break
         }
 
         player.value.loadVideoById(youtubeId)
@@ -116,25 +166,11 @@ function runCommand () {
       break
     }
     case '!stop': {
-      /*
-      TODO: ketika sedang play lalu !stop, command !resume ngejalanin dari awal video
-            hindarin behavior ini, lebih baik paksa user untuk menggunakan !play jika video
-            dimulai pada saat durasi awal
-
-            !stop -> !play
-            !pause -> !resume
-            durasi 0:00 -> !play
-            durasi > 0:00 -> !resume
-      */
       player.value.stopVideo()
       selectedCommand = command
       break
     }
     case '!resume': {
-      /* get current time */
-      const time = player.value.getCurrentTime()
-      console.log('time', time)
-
       player.value.playVideo()
       selectedCommand = command
       break
@@ -189,6 +225,7 @@ function runCommand () {
 <template>
   <div class="flex justify-center items-center flex-col">
     <div id="iframe-video" ref="iframeVideo"></div>
+    <div>{{ queueListVideo }}</div>
     <input type="text" v-model="userCommand" class="border-4 mt-20 w-full" />
     <input type="text" v-model="userName" class="border-4 mt-20 w-full" />
     <button @click="runCommand">send command</button>
