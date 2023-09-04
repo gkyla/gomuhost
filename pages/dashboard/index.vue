@@ -78,13 +78,21 @@ function runCommand () {
     case '!play': {
       const videoData = player.value.getVideoData()
 
+      /* !play blank */
       if (!youtubeId) {
         if (videoData.video_id) {
-          /* Potentially bakal diganti msg command nya, diganti jadi nambahin queue */
-          selectedCommand = command
-          message =
+          /* TODO: ganti message agar bisa ngejalanin ketika diawal video (duration 0:00) */
+          const currentVideoTimeDuration = player.value.getCurrentTime()
+
+          if (currentVideoTimeDuration < 1) {
+            player.value.playVideo()
+            selectedCommand = command
+          } else {
+            selectedCommand = command
+            message =
             'Cannot proceed because there is still video in the queue; instead, use command !resume to play the current video.'
-          break
+            break
+          }
         } else {
           selectedCommand = command
           message =
@@ -92,10 +100,15 @@ function runCommand () {
           break
         }
       } else {
+        /* !play https://ytsomething.com?v=something */
+        if (videoData.video_id) {
+          /* TODO: tambahin ke list queue */
+        }
+
         player.value.loadVideoById(youtubeId)
         selectedCommand = command
-        break
       }
+      break
     }
     case '!pause': {
       player.value.pauseVideo()
@@ -118,6 +131,10 @@ function runCommand () {
       break
     }
     case '!resume': {
+      /* get current time */
+      const time = player.value.getCurrentTime()
+      console.log('time', time)
+
       player.value.playVideo()
       selectedCommand = command
       break
