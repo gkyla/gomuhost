@@ -6,6 +6,9 @@ export default defineNuxtConfig({
     '@nuxtjs/eslint-module',
     'nuxt-headlessui'
   ],
+  runtimeConfig: {
+    youtubeApiKey: process.env.YOUTUBE_API_KEY
+  },
   app: {
     head: {
       link: [

@@ -1,7 +1,7 @@
 <script setup>
 const loggerContainer = ref(null)
 const { createLogCommandRunner, createLogState } = useLogger()
-// const { simplifyVideoData } = useObjectFormatter()
+const { getVideoDetail } = useFetchYoutubeData()
 const iframeVideo = ref(null)
 const player = ref('')
 const userCommand = ref('')
@@ -98,7 +98,7 @@ onMounted(() => {
   onYouTubeIframeAPIReady()
 })
 
-function runCommand () {
+async function runCommand () {
   const [command, userOptions] = userCommand.value.split(' ')
   let youtubeId = ''
   let volume = null
@@ -149,6 +149,9 @@ function runCommand () {
           /*
             Sepertinya butuh youtube api v3 untuk dapetin info video lengkap dengan id
           */
+          const { data } = await getVideoDetail(youtubeId)
+          console.log(data)
+
           queueListVideo.value.push(youtubeId)
           selectedCommand = command
           message = '📃 Video successfully added to the queue'
