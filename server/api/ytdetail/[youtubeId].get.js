@@ -1,15 +1,20 @@
+import { endPointList } from '@/utils/endPointParser'
+
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
+  const { YTdetail } = endPointList
   const { youtubeId } = event.context.params
 
   try {
-    const data = await $fetch(`https://www.googleapis.com/youtube/v3/videos?id=${youtubeId}&key=${config.youtubeApiKey}
-        &part=snippet`)
+    const data = await $fetch(YTdetail(config.youtubeApiKeys, youtubeId))
+
     return { data }
-  } catch (error) {
+  } catch (errorObj) {
+    const { code: statusCode, message: statusMessage } = errorObj.data.error
+
     throw createError({
-      statusCode: error.data.statusCode,
-      statusMessage: error.data.statusMessage
+      statusCode,
+      statusMessage
     })
   }
 })
