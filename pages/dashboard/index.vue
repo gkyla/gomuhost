@@ -50,7 +50,12 @@ onMounted(() => {
       author: videoData.author
     }
 
-    if (event.data === 1 /* PLAYING */) {
+    const {
+      PLAYING: VID_PLAYING,
+      ENDED: VID_ENDED
+    } = YT.PlayerState
+
+    if (event.data === VID_PLAYING) {
       currentPlayingVideo.value = createObjectVideoData
       const isAlreadyInTheQueue = queueListVideo.value.find((vid) => {
         return vid === videoData.video_id
@@ -61,7 +66,7 @@ onMounted(() => {
       }
     }
 
-    if (event.data === 0) {
+    if (event.data === VID_ENDED) {
       currentPlayingVideo.value = null
 
       if (queueListVideo.value.length > 0) {
@@ -69,7 +74,6 @@ onMounted(() => {
           return vid === videoData.video_id
         })
 
-        console.log(index)
         if (index !== -1) {
           /* Kalo durasi udah abis hapus id nya */
           queueListVideo.value.splice(index, 1)
@@ -92,7 +96,7 @@ onMounted(() => {
         Ketika resume, logs nya jangan "Now Playing" tapi "Resuming"
     */
 
-    console.log('State Changed', logs.value)
+    // console.log('State Changed', logs.value)
   }
 
   onYouTubeIframeAPIReady()
@@ -147,8 +151,12 @@ async function runCommand () {
         /* !play https://ytsomething.com?v=something */
         if (videoData.video_id && queueListVideo.value.length > 0) {
           /*
-            Sepertinya butuh youtube api v3 untuk dapetin info video lengkap dengan id
-          */
+            TODO:
+            Sepertinya butuh youtube api v3 untuk dapetin info video lengkap dengan id,
+
+            ketika pertama kali nambahin video, push data dengan ytdetail api dari pada
+            menggunakan getVideoData()
+            */
           const { data } = await getVideoDetail(youtubeId)
           console.log(data)
 
