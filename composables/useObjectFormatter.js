@@ -1,5 +1,19 @@
 export function useObjectFormatter () {
   function simplifyVideoData (iframeContainer) {
+    /* for loggin purposes */
+
+    /*
+      Data from object player.value.playerInfo.videoData
+      is same with event.target.getVideoData()
+
+        console.log(
+          { ...player.value.playerInfo.videoData }
+        )
+        console.log({
+          event: event.target.getVideoData()
+        })
+    */
+
     const videoData = iframeContainer.playerInfo.videoData
 
     return {
