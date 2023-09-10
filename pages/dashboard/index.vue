@@ -31,7 +31,7 @@ onMounted(() => {
 
   }
 
-  function onPlayerStateChange (event) {
+  async function onPlayerStateChange (event) {
     // eslint-disable-next-line eqeqeq
     console.log('onPlayerStateChange', event)
     if (event.data === 3 || event.data === 5) {
@@ -48,7 +48,7 @@ onMounted(() => {
       video_quality: videoData.video_quality,
       title: videoData.title,
       author: videoData.author
-    }
+    } /* masih diperluin buat log state */
 
     const {
       PLAYING: VID_PLAYING,
@@ -56,13 +56,15 @@ onMounted(() => {
     } = YT.PlayerState
 
     if (event.data === VID_PLAYING) {
-      currentPlayingVideo.value = createObjectVideoData
       const isAlreadyInTheQueue = queueListVideo.value.find((vid) => {
-        return vid === videoData.video_id
+        return vid.id === videoData.video_id
       })
 
       if (!isAlreadyInTheQueue) {
-        queueListVideo.value.push(currentPlayingVideo.value.video_id)
+        const videoDetailData = await getVideoDetail(videoData.video_id)
+        console.log(videoDetailData)
+        currentPlayingVideo.value = videoDetailData
+        queueListVideo.value.push(currentPlayingVideo.value)
       }
     }
 
@@ -71,7 +73,7 @@ onMounted(() => {
 
       if (queueListVideo.value.length > 0) {
         const index = queueListVideo.value.findIndex((vid) => {
-          return vid === videoData.video_id
+          return vid.id === videoData.video_id
         })
 
         if (index !== -1) {
@@ -85,8 +87,8 @@ onMounted(() => {
        */
 
       if (queueListVideo.value.length > 0) {
-        const getId = queueListVideo.value[0] /* putar urutan pertama */
-        player.value.loadVideoById(getId)
+        const { id } = queueListVideo.value[0] /* putar urutan pertama */
+        player.value.loadVideoById(id)
       }
     }
 
@@ -157,10 +159,10 @@ async function runCommand () {
             ketika pertama kali nambahin video, push data dengan ytdetail api dari pada
             menggunakan getVideoData()
             */
-          const { data } = await getVideoDetail(youtubeId)
-          console.log(data)
+          const videoDetailData = await getVideoDetail(youtubeId)
+          console.log(videoDetailData)
 
-          queueListVideo.value.push(youtubeId)
+          queueListVideo.value.push(videoDetailData)
           selectedCommand = command
           message = '📃 Video successfully added to the queue'
           break
