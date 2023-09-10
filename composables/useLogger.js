@@ -29,13 +29,14 @@ function parseYTPlayerState (playerState) {
 export function useLogger () {
   function createLogState (loggerContainer, payload) {
     const p = document.createElement('p')
-    if (payload.playerState !== -1) {
-      const parsedVideoState = parseYTPlayerState(payload.playerState)
-      p.innerText = `${parsedVideoState} ${payload.title}, 🎞️ Channel  : ${payload.author}`
-      loggerContainer.appendChild(p)
+    console.log(payload)
+    // if (payload.playerState !== -1) {
+    const parsedVideoState = parseYTPlayerState(payload.playerState)
+    p.innerText = `${parsedVideoState} ${payload.snippet.title}, 🎞️ Channel  : ${payload.snippet.channelTitle}`
+    loggerContainer.appendChild(p)
 
-      return p
-    }
+    return p
+    // }
   }
 
   function createLogCommandRunner (loggerContainer, { command, message }) {

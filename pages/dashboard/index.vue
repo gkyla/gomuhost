@@ -2,12 +2,15 @@
 const loggerContainer = ref(null)
 const { createLogCommandRunner, createLogState } = useLogger()
 const { getVideoDetail } = useFetchYoutubeData()
+const { simplifyVideoData } = useObjectFormatter()
 const iframeVideo = ref(null)
 const player = ref('')
 const userCommand = ref('')
 const logs = ref([])
 const userName = ref('Gitkyla')
-const currentPlayingVideo = ref(null)
+const currentPlayingVideo = ref({})
+const previousVideo = ref(null)
+const logVideo = ref({})
 const queueListVideo = ref([])
 
 onMounted(() => {
@@ -32,28 +35,26 @@ onMounted(() => {
   }
 
   async function onPlayerStateChange (event) {
-    // eslint-disable-next-line eqeqeq
     console.log('onPlayerStateChange', event)
-    if (event.data === 3 || event.data === 5) {
+    const {
+      PLAYING: VID_PLAYING,
+      ENDED: VID_ENDED,
+      UNSTARTED: VID_UNSTARTED,
+      CUED: VID_CUED,
+      BUFFERING: VID_BUFFERING
+    } = YT.PlayerState
+
+    if (
+      event.data === VID_BUFFERING ||
+      event.data === VID_CUED ||
+      event.data === VID_UNSTARTED) {
       return
       /* Only continue if PLAYING (1), PAUSED (2) & ENDED (0)
-          UNSTARTED (-1)
       */
     }
 
     const videoData = event.target.getVideoData()
-    const createObjectVideoData = {
-      playerState: event.data,
-      video_id: videoData.video_id,
-      video_quality: videoData.video_quality,
-      title: videoData.title,
-      author: videoData.author
-    } /* masih diperluin buat log state */
-
-    const {
-      PLAYING: VID_PLAYING,
-      ENDED: VID_ENDED
-    } = YT.PlayerState
+    currentPlayingVideo.value.playerState = event.data
 
     if (event.data === VID_PLAYING) {
       const isAlreadyInTheQueue = queueListVideo.value.find((vid) => {
@@ -62,15 +63,12 @@ onMounted(() => {
 
       if (!isAlreadyInTheQueue) {
         const videoDetailData = await getVideoDetail(videoData.video_id)
-        console.log(videoDetailData)
-        currentPlayingVideo.value = videoDetailData
+        currentPlayingVideo.value = { ...videoDetailData, playerState: event.data }
         queueListVideo.value.push(currentPlayingVideo.value)
       }
     }
 
     if (event.data === VID_ENDED) {
-      currentPlayingVideo.value = null
-
       if (queueListVideo.value.length > 0) {
         const index = queueListVideo.value.findIndex((vid) => {
           return vid.id === videoData.video_id
@@ -81,24 +79,27 @@ onMounted(() => {
           queueListVideo.value.splice(index, 1)
         }
       }
-
-      /* Recheck, Setelah delete current video, check jika masih ada video di queue list
-        maka jalan kan video tersebut
-       */
-
-      if (queueListVideo.value.length > 0) {
-        const { id } = queueListVideo.value[0] /* putar urutan pertama */
-        player.value.loadVideoById(id)
-      }
     }
 
-    createLogState(loggerContainer.value, createObjectVideoData)
-
     /* TODO:
-        Ketika resume, logs nya jangan "Now Playing" tapi "Resuming"
+        Ketika resume, logs nya jangan "Now Playing" tapi "Resuming",
+        Now playing muncul 2x ketika ngulang dari iframe
     */
 
-    // console.log('State Changed', logs.value)
+    createLogState(loggerContainer.value, currentPlayingVideo.value)
+
+    /*  Setelah delete current video dan logging,
+        check jika masih ada video di queue list
+        maka jalan kan video tersebut
+    */
+
+    if (event.data === VID_ENDED) {
+      if (queueListVideo.value.length > 0) {
+        const data = queueListVideo.value[0] /* putar urutan pertama */
+        player.value.loadVideoById(data.id)
+        currentPlayingVideo.value = data
+      }
+    }
   }
 
   onYouTubeIframeAPIReady()
