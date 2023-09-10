@@ -8,7 +8,7 @@ export function useFetchYoutubeData () {
         statusMessage: error.value.statusMessage
       })
     }
-    return { data }
+    return { ...data.value }
   }
 
   return { getVideoDetail }

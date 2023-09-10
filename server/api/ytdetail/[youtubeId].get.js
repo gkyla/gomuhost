@@ -9,8 +9,8 @@ export default defineEventHandler(async (event) => {
   const { youtubeId } = event.context.params
 
   try {
-    const data = await $fetch(youtubeVideoDetail(config.youtubeApiKey, youtubeId))
-    return { data }
+    const { items } = await $fetch(youtubeVideoDetail(config.youtubeApiKey, youtubeId))
+    return { ...items[0] } /* since we only want to return one video detail */
   } catch (errorObj) {
     const { code: statusCode, message: statusMessage } = errorObj.data.error
 
