@@ -1,8 +1,8 @@
 <script setup>
+const nuxtApp = useNuxtApp()
 const loggerContainer = ref(null)
 const { createLogCommandRunner, createLogState } = useLogger()
 const { getVideoDetail } = useFetchYoutubeData()
-const { simplifyVideoData } = useObjectFormatter()
 const iframeVideo = ref(null)
 const player = ref('')
 const userCommand = ref('')
@@ -12,6 +12,16 @@ const currentPlayingVideo = ref({})
 const previousVideo = ref(null)
 const logVideo = ref({})
 const queueListVideo = ref([])
+
+try {
+  /* look up registeredWatchers error later */
+  const socket = nuxtApp.$nuxtSocket({})
+  console.log(socket)
+  const theMessage = await socket.emitP('sendMessage', 'kukuruk kukeruk')
+  console.log(theMessage)
+} catch (error) {
+  console.error(error)
+}
 
 onMounted(() => {
   function onYouTubeIframeAPIReady () {

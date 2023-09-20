@@ -4,8 +4,22 @@ export default defineNuxtConfig({
   modules: [
     '@nuxtjs/tailwindcss',
     '@nuxtjs/eslint-module',
-    'nuxt-headlessui'
+    'nuxt-headlessui',
+    'nuxt-socket-io'
   ],
+  io: {
+    server: {
+      cors: {
+        origin: [
+        // whitelisted origins
+          'http://localhost:3000'
+        ]
+      }
+    },
+    sockets: [
+      { name: 'chat', default: true, url: 'http://localhost:3000' }
+    ]
+  },
   runtimeConfig: {
     youtubeApiKey: process.env.YOUTUBE_API_KEY
   },
