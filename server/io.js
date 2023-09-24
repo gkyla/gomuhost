@@ -1,9 +1,21 @@
+// eslint-disable no-unused-vars
+
 // Inside each ".js" file above, the module expects this at a bare-minimum
-export default function (socket, io) {
+import axios from 'axios'
+import { endPointList } from '../utils/endPointParser'
+
+export default function Svc (socket, io) {
+  /* not really working in production */
+  const { youtubeVideoDetail } = endPointList
+
   return Object.freeze({
-    sendMessage (msg) {
+    async sendMessage (msg) {
       console.log('kamu ngirim ini loh :', msg)
-      return `kamu mengirim ini loh ler der ${msg}`
+      const { data } = await axios.get(youtubeVideoDetail(process.env.YOUTUBE_API_KEY, 'e0pAtUCP_NU'))
+      return {
+        message: 'kamu mengirim ini loh ler der ',
+        payload: { ...data.items[0] }
+      }
     }
   })
 }

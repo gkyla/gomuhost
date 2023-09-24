@@ -1,3 +1,4 @@
+<!-- eslint-disable no-unused-vars -->
 <script setup>
 const nuxtApp = useNuxtApp()
 const loggerContainer = ref(null)
@@ -16,9 +17,8 @@ const queueListVideo = ref([])
 try {
   /* look up registeredWatchers error later */
   const socket = nuxtApp.$nuxtSocket({})
-  console.log(socket)
-  const theMessage = await socket.emitP('sendMessage', 'kukuruk kukeruk')
-  console.log(theMessage)
+  const message = await socket.emitP('sendMessage', 'ini adalah pesan')
+  console.log(message)
 } catch (error) {
   console.error(error)
 }
